@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Динамическое Колесо</title>
+<style>
+body {
+    background: #111;
+    color: white;
+    text-align: center;
+    font-family: Arial;
+}
+
+.wheel-container {
+    position: relative;
+    width: 400px;
+    height: 400px;
+    margin: 30px auto;
+}
+
+.wheel {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 8px solid white;
+    transition: transform 5s cubic-bezier(0.1, 0.7, 0.1, 1);
+}
+
+.pointer {
+    position: absolute;
+    top: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-left: 20px solid transparent;
+    border-right: 20px solid transparent;
+    border-bottom: 40px solid white;
+}
+
+input {
+    padding: 10px;
+    font-size: 16px;
+}
+
+button {
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    margin: 5px;
+}
+
+#result {
+    font-size: 24px;
+    margin-top: 20px;
+}
+</style>
+</head>
+<body>
+
+<h1>🎡 Колесо Фортуны</h1>
+
+<div class="wheel-container">
+    <div class="pointer"></div>
+    <div class="wheel" id="wheel"></div>
+</div>
+
+<input type="text" id="optionInput" placeholder="Введите вариант">
+<button onclick="addOption()">Добавить</button>
+<button onclick="spin()">Крутить</button>
+
+<div id="result"></div>
+
+<script>
+let options = [];
+let currentRotation = 0;
+const wheel = document.getElementById("wheel");
+
+// Генерация случайного цвета
+function randomColor() {
+    return `hsl(${Math.floor(Math.random()*360)}, 70%, 50%)`;
+}
+
+// Добавление варианта
+function addOption() {
+    const input = document.getElementById("optionInput");
+    const value = input.value.trim();
+    if(value === "") return;
+
+    options.push({
+        text: value,
+        color: randomColor()
+    });
+
+    input.value = "";
+    drawWheel();
+}
+
+// Отрисовка колеса
+function drawWheel() {
+    if(options.length === 0) return;
+
+    let angle = 360 / options.length;
+    let gradient = "";
+
+    options.forEach((opt, i) => {
+        gradient += `${opt.color} ${i*angle}deg ${(i+1)*angle}deg,`;
+    });
+
+    wheel.style.background = `conic-gradient(${gradient.slice(0,-1)})`;
+}
+
+// Крутить
+function spin() {
+    if(options.length === 0) return;
+
+    const randomIndex = Math.floor(Math.random() * options.length);
+    const angle = 360 / options.length;
+    const extraSpins = 360 * 6;
+    const stopAngle = randomIndex * angle + angle/2;
+
+    currentRotation += extraSpins + (360 - stopAngle);
+    wheel.style.transform = `rotate(${currentRotation}deg)`;
+
+    setTimeout(() => {
+        document.getElementById("result").innerText =
+            "🎉 Выпало: " + options[randomIndex].text;
+    }, 5000);
+}
+
+// Начальное состояние — 1 сектор
+options.push({ text: "Первый вариант", color: randomColor() });
+drawWheel();
+</script>
+
+</body>
+</html>
+
+
